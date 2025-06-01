@@ -1,17 +1,15 @@
+import joblib
+import numpy as np
 import streamlit as st
-import requests
+
+# Load model
+model = joblib.load("app/best_model.pkl")  # or just "best_model.pkl" if it's in root
 
 st.title("Satellite Predictive Maintenance")
-
-num_features = st.number_input("Enter number of features", min_value=1, max_value=100)
+num_features = st.number_input("Enter number of features", min_value=1)
 inputs = [st.number_input(f"Feature {i+1}") for i in range(num_features)]
 
 if st.button("Predict"):
-    try:
-        response = requests.post("http://localhost:8000/predict", json={"features": inputs})
-        if response.status_code == 200:
-            st.success(f"Prediction: {response.json()['prediction']}")
-        else:
-            st.error(f"Server returned error: {response.text}")
-    except requests.exceptions.RequestException as e:
-        st.error(f"Request failed: {e}")
+    features = np.array(inputs).reshape(1, -1)
+    prediction = model.predict(features)[0]
+    st.success(f"Prediction: {prediction}")

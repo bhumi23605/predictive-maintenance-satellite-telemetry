@@ -3,7 +3,7 @@ import numpy as np
 import streamlit as st
 
 # Load model
-model = joblib.load("best_model.pkl")  # or just "best_model.pkl" if it's in root
+model = joblib.load("bestmodel.pkl")  # or just "best_model.pkl" if it's in root
 
 st.title("Satellite Predictive Maintenance")
 num_features = st.number_input("Enter number of features", min_value=1)

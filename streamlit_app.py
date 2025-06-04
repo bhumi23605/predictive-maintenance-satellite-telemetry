@@ -20,12 +20,3 @@ if st.button("Predict"):
         st.success(f"Prediction: {prediction}")
     except Exception as e:
         st.error(f"Prediction failed: {e}")
-'''      
-num_features = st.number_input("Enter number of features", min_value=1)
-inputs = [st.number_input(f"Feature {i+1}") for i in range(num_features)]
-
-if st.button("Predict"):
-    features = np.array(inputs).reshape(1, -1)
-    prediction = model.predict(features)[0]
-    st.success(f"Prediction: {prediction}")
-'''

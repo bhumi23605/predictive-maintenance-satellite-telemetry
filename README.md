@@ -16,6 +16,9 @@ Data Pipeline Flow:
 Tech Stack:
 
 Languages: Python
-Model building : LightGBM  , XGBoost
-Development tools: VS code and Jupyter notebook 
+
+Model building : LightGBM , XGBoost
+
+Development tools: VS code and Jupyter notebook
+ 
 Deployment/APIs: Streamlit, FastAPI

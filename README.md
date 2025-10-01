@@ -4,6 +4,9 @@ This is a satellite predictive maintenance application devekloped by taking data
 
 Key Points:
 
+LightGBM uses histogram-based algorithms, which bucket continuous feature (attribute) values into discrete bins. This speeds up training and reduces memory usage. LightGBM grows trees leaf-wise. It will choose the leaf with max delta loss to grow.
+Leaf-wise may cause over-fitting when data is small, therefore LightGBM includes max_depth parameter to limit tree depth.
+
 Trained on models like LightGBM,XGBoost and used performance indicators like:
 1) Confusion Matrix
 2) Accuracy

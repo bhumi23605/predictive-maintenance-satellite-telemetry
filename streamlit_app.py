@@ -83,6 +83,7 @@ if uploaded_file is not None:
     st.write(df.head())
 
     # Assume first column contains signal
+    signal = df.iloc[:,0].values
     if len(signal) < 20:
         st.error("Signal too short.")
         st.stop()

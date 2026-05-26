@@ -25,3 +25,15 @@ Model building : LightGBM , XGBoost
 Development tools: VS code and Jupyter notebook
  
 Deployment/APIs: Streamlit, FastAPI
+
+The streamlit feature extractin pipeline 
+
+signal
+  ↓
+windowing
+  ↓
+feature extraction
+  ↓
+prediction
+  ↓
+trend graph

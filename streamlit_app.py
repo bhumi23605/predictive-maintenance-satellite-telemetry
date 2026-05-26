@@ -1,22 +1,134 @@
-import joblib
-import numpy as np
 import streamlit as st
+import pandas as pd
+import numpy as np
+import joblib
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+from scipy.stats import kurtosis
 
-# Load model
-model = joblib.load("bestmodel (1).pkl")  # or just "best_model.pkl" if it's in root
+# -----------------------------
+# LOAD MODEL
+# -----------------------------
+model = joblib.load("bestmodel (1).pkl")
 
-st.title("Satellite Predictive Maintenance")
+# -----------------------------
+# FEATURE EXTRACTION FUNCTION
+# -----------------------------
+def extract_features(signal):
 
-EXPECTED_FEATURES = 6  # Replace with your model's input feature count
+    signal = np.array(signal)
 
-st.write(f"Enter {EXPECTED_FEATURES} features:")
-inputs = [st.number_input(f"Feature {i+1}") for i in range(EXPECTED_FEATURES)]
+    # Number of peaks
+    peaks, _ = find_peaks(signal)
+    n_peaks = len(peaks)
 
-if st.button("Predict"):
-    features = np.array(inputs).reshape(1, -1)
-    
-    try:
-        prediction = model.predict(features)[0]
-        st.success(f"Prediction: {prediction}")
-    except Exception as e:
-        st.error(f"Prediction failed: {e}")
+    # Second derivative
+    diff2 = np.diff(signal, n=2)
+
+    # Variance of second derivative
+    diff2_var = np.var(diff2)
+
+    # Smoothed signal
+    smooth_signal = pd.Series(signal).rolling(window=10).mean().dropna()
+
+    smooth_peaks, _ = find_peaks(smooth_signal)
+    smooth10_n_peaks = len(smooth_peaks)
+
+    # Variance divided by signal length
+    var_div_len = np.var(signal) / len(signal)
+
+    # Peaks in second derivative
+    diff2_peaks, _ = find_peaks(diff2)
+    diff2_peaks = len(diff2_peaks)
+
+    # Gap squared feature
+    if len(peaks) > 1:
+        gaps = np.diff(peaks)
+        gaps_squared = np.mean(gaps ** 2)
+    else:
+        gaps_squared = 0
+
+    # Kurtosis
+    #kurt = kurtosis(signal)
+
+    features = pd.DataFrame([{
+        'n_peaks': n_peaks,
+        'diff2_var': diff2_var,
+        'smooth10_n_peaks': smooth10_n_peaks,
+        'var_div_len': var_div_len,
+        'diff2_peaks': diff2_peaks,
+        'gaps_squared': gaps_squared
+    }])
+
+    return features
+
+# -----------------------------
+# STREAMLIT UI
+# -----------------------------
+st.title("Predictive Maintenance Dashboard")
+
+st.write("Upload a CSV file containing sensor signal data.")
+
+uploaded_file = st.file_uploader(
+    "Upload CSV",
+    type=["csv"]
+)
+
+if uploaded_file is not None:
+
+    # Read CSV
+    df = pd.read_csv(uploaded_file)
+
+    st.subheader("Uploaded Data")
+    st.write(df.head())
+
+    # Assume first column contains signal
+    signal = df.iloc[:, 0].values
+
+    # Plot signal
+    st.subheader("Signal Plot")
+
+    fig, ax = plt.subplots(figsize=(10, 4))
+    ax.plot(signal)
+    ax.set_xlabel("Samples")
+    ax.set_ylabel("Amplitude")
+
+    st.pyplot(fig)
+
+    # Extract features
+    features = extract_features(signal)
+
+    st.subheader("Extracted Features")
+    st.write(features)
+
+    # Prediction
+    prediction = model.predict(features)[0]
+
+    # Probability
+    probability = model.predict_proba(features)[0][1]
+
+    # Health score
+    health_score = int((1 - probability) * 100)
+
+    st.subheader("Prediction Result")
+
+    if prediction == 1:
+        st.error(f"Anomaly Detected ⚠")
+    else:
+        st.success("Machine Healthy ✅")
+
+    st.write(f"Anomaly Probability: {probability:.2f}")
+    st.write(f"Health Score: {health_score}%")
+
+    # Gauge-style progress
+    st.progress(health_score / 100)
+
+    # Maintenance suggestion
+    st.subheader("Maintenance Suggestion")
+
+    if probability > 0.8:
+        st.error("Immediate inspection recommended.")
+    elif probability > 0.5:
+        st.warning("Monitor machine condition closely.")
+    else:
+        st.success("Machine operating normally.")

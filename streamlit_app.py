@@ -127,10 +127,10 @@ if uploaded_file is not None:
     #st.write(features)
 
     # Prediction
-    #prediction = model.predict(features)[0]
+    prediction = model.predict(features)[0]
 
     # Probability
-    #probability = model.predict_proba(features)[0][1]
+    probability = model.predict_proba(features)[0][1]
 
     st.subheader("Anomaly Probability Trend")
 
@@ -143,22 +143,33 @@ if uploaded_file is not None:
     
     st.pyplot(fig)
 
-
-    # Health score
-    health_score = int((1 - prob) * 100)
-
+    # -----------------------------
+    # OVERALL MACHINE HEALTH
+    # -----------------------------
+    
+    avg_probability = np.mean(results)
+    
+    max_probability = np.max(results)
+    
+    health_score = int((1 - avg_probability) * 100)
+    
     st.subheader("Prediction Result")
-
-    if prediction == 1:
-        st.error(f"Anomaly Detected ⚠")
+    
+    if max_probability > 0.8:
+        st.error("Critical Anomaly Detected ⚠")
+    
+    elif avg_probability > 0.5:
+        st.warning("Potential Fault Developing ⚠")
+    
     else:
-        st.success("Machine Healthy ✅")
-
-    st.write(f"Anomaly Probability: {probability:.2f}")
+        st.success("Machine Operating Normally ✅")
+    
+    st.write(f"Average Anomaly Probability: {avg_probability:.2f}")
+    st.write(f"Maximum Anomaly Probability: {max_probability:.2f}")
     st.write(f"Health Score: {health_score}%")
+    st.progress(health_score / 100)
 
     # Gauge-style progress
-    st.progress(health_score / 100)
 
     # Maintenance suggestion
     st.subheader("Maintenance Suggestion")

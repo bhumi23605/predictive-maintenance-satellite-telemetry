@@ -28,12 +28,4 @@ Deployment/APIs: Streamlit, FastAPI
 
 The streamlit feature extractin pipeline 
 
-signal
-  ↓
-windowing
-  ↓
-feature extraction
-  ↓
-prediction
-  ↓
-trend graph
+signal -> windowing -> feature extraction -> prediction -> trend graph

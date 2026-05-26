@@ -123,8 +123,8 @@ if uploaded_file is not None:
         prob = model.predict_proba(features)[0][1]
     
         results.append(prob)
-    st.subheader("Extracted Features")
-    st.write(features)
+    #st.subheader("Extracted Features")
+    #st.write(features)
 
     # Prediction
     #prediction = model.predict(features)[0]

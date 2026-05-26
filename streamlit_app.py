@@ -62,6 +62,18 @@ def extract_features(signal):
 
     return features
 
+
+def create_windows(signal, window_size=2048, step_size=512):
+
+    windows = []
+
+    for i in range(0, len(signal) - window_size, step_size):
+
+        window = signal[i:i+window_size]
+        windows.append(window)
+
+    return windows
+
 # -----------------------------
 # STREAMLIT UI
 # -----------------------------
@@ -83,7 +95,7 @@ if uploaded_file is not None:
     st.write(df.head())
 
     # Assume first column contains signal
-    signal = df.iloc[:,0].values
+    signal = df.iloc[:,0].dropna().values
     if len(signal) < 20:
         st.error("Signal too short.")
         st.stop()
@@ -99,16 +111,38 @@ if uploaded_file is not None:
     st.pyplot(fig)
 
     # Extract features
-    features = extract_features(signal)
+    #features = extract_features(signal)
+    windows = create_windows(signal)
 
+    results = []
+
+    for window in windows:
+    
+        features = extract_features(window)
+    
+        prob = model.predict_proba(features)[0][1]
+    
+        results.append(prob)
     st.subheader("Extracted Features")
     st.write(features)
 
     # Prediction
-    prediction = model.predict(features)[0]
+    #prediction = model.predict(features)[0]
 
     # Probability
-    probability = model.predict_proba(features)[0][1]
+    #probability = model.predict_proba(features)[0][1]
+
+    st.subheader("Anomaly Probability Trend")
+
+    fig, ax = plt.subplots(figsize=(10,4))
+    
+    ax.plot(results)
+    
+    ax.set_xlabel("Window Number")
+    ax.set_ylabel("Anomaly Probability")
+    
+    st.pyplot(fig)
+
 
     # Health score
     health_score = int((1 - probability) * 100)

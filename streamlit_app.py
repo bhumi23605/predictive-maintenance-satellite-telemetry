@@ -145,7 +145,7 @@ if uploaded_file is not None:
 
 
     # Health score
-    health_score = int((1 - probability) * 100)
+    health_score = int((1 - prob) * 100)
 
     st.subheader("Prediction Result")
 

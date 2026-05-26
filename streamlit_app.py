@@ -82,14 +82,18 @@ st.title("Predictive Maintenance Dashboard")
 st.write("Upload a CSV file containing sensor signal data.")
 
 uploaded_file = st.file_uploader(
-    "Upload CSV",
-    type=["csv"]
+    "Upload File",
+    type=["csv","xlsx"]
 )
 
 if uploaded_file is not None:
 
     # Read CSV
-    df = pd.read_csv(uploaded_file)
+    if uploaded_file.name.endswith(".csv"):
+        df = pd.read_csv(uploaded_file)
+
+    elif uploaded_file.name.endswith(".xlsx"):
+        df = pd.read_excel(uploaded_file)
 
     st.subheader("Uploaded Data")
     st.write(df.head())
